@@ -77,13 +77,19 @@ def writeAudio(newFirstNote, testSamp, newSecondNote, trigger):
 def cascadingOverlap(data, indexOne, indexTwo):
 
 	if len(data[indexTwo][1]) > len(data[indexOne][1]):
-		theOverlapSize = math.trunc(len(data[indexOne][1]) * 0.5);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
+		theOverlapSize = math.trunc(len(data[indexOne][1]) * 0.3);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
 	else:
-		theOverlapSize = math.trunc(len(data[indexTwo][1]) * 0.5);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
+		theOverlapSize = math.trunc(len(data[indexTwo][1]) * 0.3);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
 
-	#print ("The length of the first note in bytes is " + str(len(data[indexOne][1])));
-	#print ("The length of the second note in bytes is " + str(len(data[indexTwo][1])));
-	#print ("The length of the OVERLAP in bytes is " + str(theOverlapSize));
+	if (theOverlapSize) % 2 == 0:
+		print ("Overlap is happily equal.");
+	else:
+		theOverlapSize = theOverlapSize - 1;
+
+
+	print ("The length of the first note in bytes is " + str(len(data[indexOne][1])));
+	print ("The length of the second note in bytes is " + str(len(data[indexTwo][1])));
+	print ("The length of the OVERLAP in bytes is " + str(theOverlapSize));
 
 
 	newFirstNote = data[indexOne][1][: - theOverlapSize];		##	"cut" the first audio file to exclude the trailing lengh of the overlap
@@ -168,7 +174,11 @@ def averagize(graphData, notes):
 
 	#print notes, "\n\n\n\n\n";
 	#print cloneIntNewListOfDataPoints, "\n\n\n\n\n";
-	chronoList = intNewListOfDataPoints[::-1];	#this list is flipped so it is chronological oldest to newest -- will depend on your list of data
+	chronoList = intNewListOfDataPoints;	#this list is flipped so it is chronological oldest to newest -- will depend on your list of data
+				#this list is flipped so it is chronological oldest to newest -- will depend on your list of data
+
+
+
 
 	notesTiedToData = dict(zip(cloneIntNewListOfDataPoints, notes));	#zips your notes and data together in order from lowest to highest or what have you
 
