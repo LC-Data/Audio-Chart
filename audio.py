@@ -5,7 +5,6 @@ import math
 import audioop
 
 
-
 def inputData():
 
 	graphData = [];
@@ -44,109 +43,115 @@ def noteSet():			#This should eventually take an instrument/set of notes as a pa
 
 endAudio = [];
 
-def writeAudio(newFirstNote, testSamp, newSecondNote, trigger):
 
+def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, indexTwo):
 
-
+	indexOne = indexOne;
+	indexTwo - indexTwo;
+	
 	if trigger == False:
-		endAudio.append(newFirstNote)
-		endAudio.append(testSamp)
-		endAudio.append(newSecondNote)
-
+		data[0][1] = newFirstNote + testSamp + newSecondNote;
+		del data[1]
+		cascadingOverlap(data, indexOne, indexTwo);
 
 	else:
-		endAudio.append(newFirstNote)
-		endAudio.append(testSamp)
-		endAudio.append(newSecondNote)
-
+		data[0][1] = newFirstNote + testSamp + newSecondNote;
+		del data[1]
 
 		p = wave.open('./THEBOSSBATTLE', 'wb');
-		p.setparams((2, 2, 22050, 98993, 'NONE', 'not compressed'));
+		p.setparams(data[0][0]);
 
-		for i in range(0, len(endAudio)):
-			p.writeframes(endAudio[i])
+		for i in range(0, len(data)):
+			p.writeframes(data[i][1])
 		p.close()
 
-		print("SUCCESSS!!")
-
-
+		print("SUCCESSS!!'/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\'")
 
 
 
 
 def cascadingOverlap(data, indexOne, indexTwo):
 
-	if len(data[indexTwo][1]) > len(data[indexOne][1]):
-		theOverlapSize = math.trunc(len(data[indexOne][1]) * 0.3);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
+#
+	firstVar = indexOne;
+	secondVar = indexTwo;
+	
+
+	print firstVar
+	if len(data[secondVar][1]) > len(data[firstVar][1]):
+		theOverlapSize = math.trunc(len(data[firstVar][1]) * 0.5);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
 	else:
-		theOverlapSize = math.trunc(len(data[indexTwo][1]) * 0.3);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
-
-	if (theOverlapSize) % 2 == 0:
-		print ("Overlap is happily equal.");
-	else:
-		theOverlapSize = theOverlapSize - 1;
+		theOverlapSize = math.trunc(len(data[secondVar][1]) * 0.5);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
 
 
-	print ("The length of the first note in bytes is " + str(len(data[indexOne][1])));
-	print ("The length of the second note in bytes is " + str(len(data[indexTwo][1])));
+
+	print ("The length of the first note in bytes is " + str(len(data[firstVar][1])));
+	print ("The length of the second note in bytes is " + str(len(data[secondVar][1])));
 	print ("The length of the OVERLAP in bytes is " + str(theOverlapSize));
 
 
-	newFirstNote = data[indexOne][1][: - theOverlapSize];		##	"cut" the first audio file to exclude the trailing lengh of the overlap
-	newSecondNote = data[indexTwo][1][theOverlapSize:];		## same to the second (the audio is cut from the beginnning of this note)
 
-
-	if (len(data[indexOne][1][:theOverlapSize]) % 2 == 0):
-		overlapPart1 = data[indexOne][1][ - (theOverlapSize) : ];
-		#print "even number of frames."
-		#print (len(overlapPart1))
-
-	else:
-		#print "ODD AS FUDGE"
-		#print (len(data[indexOne][1][:theOverlapSize]))
-		overlapPart1 = data[indexOne][1][ - (theOverlapSize - 1) : ];
-		#print ("NOW EVEN AS FUDGE!", len(overlapPart1))
+	newFirstNote = data[firstVar][1][: - theOverlapSize];		##	"cut" the first audio file to exclude the trailing lengh of the overlap
+	newSecondNote = data[secondVar][1][theOverlapSize:];		## same to the second (the audio is cut from the beginnning of this note)
 
 
 
 
-	if (len(data[indexTwo][1][:theOverlapSize]) % 2 == 0):
-		overlapPart2 = data[indexTwo][1][ :  theOverlapSize ];
-		#print "even number of frames."
-		#print (len(overlapPart2))
+
+	if (len(data[firstVar][1][:theOverlapSize]) % 2 == 0):
+		overlapPart1 = data[firstVar][1][ - (theOverlapSize) : ];
+		print "even number of frames."
+		print (len(overlapPart1))
 
 	else:
-		#print "ODD AS FUDGE"
-		#print (len(data[indexTwo][1][:theOverlapSize]))
-		overlapPart2 = data[indexTwo][1][ :  (theOverlapSize - 1)];
-		#print ("NOW EVEN AS FUDGE!", len(overlapPart2))
+		print "ODD AS FUDGE"
+		print (len(data[firstVar][1][:theOverlapSize]))
+		overlapPart1 = data[firstVar][1][ - (theOverlapSize - 1) : ];
+		print ("NOW EVEN AS FUDGE!", len(overlapPart1))
 
 
-	#print ("The length of the first note without it's overlap is " + str(len(newFirstNote)));
 
-	data[indexOne][1] = data[indexOne][1][:theOverlapSize]; 	#make wav segments to "add"(overlap) the same size -- this is required.
 
-	#print ("The length of the first overlap in bytes is " + str(len(overlapPart1)))
 
-	#print ("The length of the second overlap in bytes is " + str(len(overlapPart2)))
+	if (len(data[secondVar][1][:theOverlapSize]) % 2 == 0):
+		overlapPart2 = data[secondVar][1][ :  theOverlapSize ];
+		print "even number of frames."
+		print (len(overlapPart2))
+
+	else:
+		print "ODD AS FUDGE"
+		print (len(data[secondVar][1][:theOverlapSize]))
+		overlapPart2 = data[secondVar][1][ :  (theOverlapSize - 1)];
+		print ("NOW EVEN AS FUDGE!", len(overlapPart2))
+
+			## the end of the second note
+
+
+	print ("The length of the first note without it's overlap is " + str(len(newFirstNote)));
+
+
+
+
+	data[firstVar][1] = data[firstVar][1][:theOverlapSize]; 	#make wav segments to "add"(overlap) the same size -- this is required.
+
+
+
+	print ("The length of the first overlap in bytes is " + str(len(overlapPart1)))
+
+	print ("The length of the second overlap in bytes is " + str(len(overlapPart2)))
 
 
 	testSamp = audioop.add(overlapPart1, overlapPart2, 2);
 
-	indexOne = indexOne + 2;
-	indexTwo = indexTwo + 2;
-	#indexOne = indexOne + 1;
-	#indexTwo = indexTwo + 1;
-	print ("HELLO !!", indexOne)
-
-	print(indexOne, indexTwo)
-	if indexOne == len(data) -1:	#end condition, because indexOne is +1 on secondVat, but indexTwo takes the note AFTER indexOne
+	#firstVar = firstVar + 2;
+	#secondVar = secondVar + 2;
+	#print ("HELLO !!", firstVar)
+	if len(data) == 2:	#end condition, because firstVar is +1 on secondVat, but secondVar takes the note AFTER firstVar
 		
-		writeAudio(newFirstNote, testSamp, newSecondNote, True)
-		
+		writeAudio(data, newFirstNote, testSamp, newSecondNote, True, firstVar, secondVar)
 	else:
-		writeAudio(newFirstNote, testSamp, newSecondNote, False)
-		cascadingOverlap(data, indexOne, indexTwo)
+		writeAudio(data, newFirstNote, testSamp, newSecondNote, False, firstVar, secondVar)
+
 
 
 def averagize(graphData, notes):
@@ -164,7 +169,7 @@ def averagize(graphData, notes):
 	newListOfDataPoints = graphData[0::notesPerDataPoint];
 	print ("The new list of data points (determined by the number of notes to data points - and picking at set intervals) is: "), newListOfDataPoints;
 
-	#print len(newListOfDataPoints), "\n";
+	print len(newListOfDataPoints), "\n";
 	#print len()
 	intNewListOfDataPoints = [int(float(x)) for x in newListOfDataPoints]
 
@@ -172,26 +177,20 @@ def averagize(graphData, notes):
 
 	cloneIntNewListOfDataPoints.sort();			#these are sorted so they can be linked to the notes from highest to lowest etc
 
-	#print notes, "\n\n\n\n\n";
-	#print cloneIntNewListOfDataPoints, "\n\n\n\n\n";
-	chronoList = intNewListOfDataPoints;	#this list is flipped so it is chronological oldest to newest -- will depend on your list of data
-				#this list is flipped so it is chronological oldest to newest -- will depend on your list of data
-
-
-
+	print notes, "\n\n\n\n\n";
+	print cloneIntNewListOfDataPoints, "\n\n\n\n\n";
+	chronoList = intNewListOfDataPoints[::-1];	#this list is flipped so it is chronological oldest to newest -- will depend on your list of data
 
 	notesTiedToData = dict(zip(cloneIntNewListOfDataPoints, notes));	#zips your notes and data together in order from lowest to highest or what have you
 
-	#print notesTiedToData, "\n\n\n\n\n";
+	print notesTiedToData, "\n\n\n\n\n";
 
-	#print notesTiedToData.keys(), " THESE ARE THE KEYS \n\n";
+	print notesTiedToData.keys(), " THESE ARE THE KEYS \n\n";
 	
 	for i in range(0,len(chronoList)):
 		w = wave.open(notesTiedToData[chronoList[i]], 'rb')
 		data.append( [w.getparams(), w.readframes(w.getnframes())] )
 		w.close()
-
-	print ("data[0][0] IS THIS =================================>", data[0][0])
 
 	for x in chronoList:
 		finalNotes.append(notesTiedToData[x])			#THIS JUST LET YOU SEE WHAT THE NOTES WILL LOOK LIKE, THIS ARRAY ISNT ACTUALLY USED, THE DATA JUST GETS WRITTEN
@@ -209,6 +208,6 @@ averagize(inputData(), noteSet());
 # - KEEP REFACTORING ALL OF THIS CRAP -- 
 # - RELATIVISTIC NOTES TO DATA... if the data spikes REALLY high the note should too!	(SOMEWHAT helped this issue with the octaves)
 # - Choose chronological or reverse chronological data input.
-# - Overlapping DONE
-# - keep refactoring, collect like pieces of data, simplify functions
-# - IF A FILE/LIST IS PASSED WITH AN EVEN NUMBER OF VALUES IT WILL CRASH BECAUSE OF LINE 130/131 -- PUSHES THE INDEX OUT OF BOUNDS 
+# - In the test file I got .wav overlapping figured out with audioop library, write a method to chain overlap the notes and integrate it here
+# 	- to do this the overlapped data needs to be the same length in bytes (or time in real life...), consider overlappinng a % of the incoming note's length to the end of
+#	- the previous note by the same length.
