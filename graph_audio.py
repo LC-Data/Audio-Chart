@@ -101,7 +101,7 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 		p = wave.open('./THEBOSSBATTLE.wav', 'rb');
 		getRate2 = p.getparams();
 		print ("FINAL FRAME RATE IS - ", getRate2);
-
+		p.close();
 		secondsLong = float(getRate2[3])/float(getRate2[2]);
 
 		print("seconds long is : ", float(secondsLong), type(secondsLong));
