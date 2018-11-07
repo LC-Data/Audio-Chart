@@ -10,9 +10,16 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.figure import Figure
 import vlc
+plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+
+import subprocess
+import re
+
+
 
 
 secondsLong = None;
+placeholderList = [];
 
 def inputData():
 
@@ -89,7 +96,7 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 		data[0][1] = newFirstNote + testSamp + newSecondNote;
 		del data[1]
 
-		p = wave.open('./THEBOSSBATTLE.wav', 'wb');
+		p = wave.open('./THEBOSSBATTLE2222.wav', 'wb');
 		p.setparams(data[0][0]);
 
 		for i in range(0, len(data)):
@@ -98,16 +105,18 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 		print ("FRAME RATE IS - ", getRate)
 		p.close()
 
-		p = wave.open('./THEBOSSBATTLE.wav', 'rb');
+		p = wave.open('./THEBOSSBATTLE2222.wav', 'rb');
+		frames = p.getnframes()
+		rate = p.getframerate()
 		getRate2 = p.getparams();
 		print ("FINAL FRAME RATE IS - ", getRate2);
-		p.close();
-		secondsLong = float(getRate2[3])/float(getRate2[2]);
+
+		secondsLong = frames/float(rate);
 
 		print("seconds long is : ", float(secondsLong), type(secondsLong));
 		print("SUCCESSS!!'/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\'");
 
-
+		p.close();
 
 
 
@@ -133,9 +142,9 @@ def cascadingOverlap(data, indexOne, indexTwo):
 	
 	print firstVar
 	if len(data[secondVar][1]) > len(data[firstVar][1]):
-		theOverlapSize = math.trunc(len(data[firstVar][1]) * 0.5);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
+		theOverlapSize = math.trunc(len(data[firstVar][1]) * 0.50);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
 	else:
-		theOverlapSize = math.trunc(len(data[secondVar][1]) * 0.5);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
+		theOverlapSize = math.trunc(len(data[secondVar][1]) * 0.50);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
 
 	print ("The length of the first note in bytes is " + str(len(data[firstVar][1])));
 	print ("The length of the second note in bytes is " + str(len(data[secondVar][1])));
@@ -219,7 +228,7 @@ def cascadingOverlap(data, indexOne, indexTwo):
 
 
 def averagize(graphData, notes):
-
+	global placeholderList
 	data = [];
 	numOfNotes = len(notes);
 	numOfDataPoints = len(graphData);
@@ -230,7 +239,7 @@ def averagize(graphData, notes):
 	print ("Number of data points is "), numOfDataPoints, "\n";
 	print ("The number of 'data points per notes' is "), notesPerDataPoint, "\n";
 
-	newListOfDataPoints = graphData[0::notesPerDataPoint];
+	newListOfDataPoints = graphData[0::notesPerDataPoint];		### new list of data extracts every 'notesPerDataPoint'th index from graphData
 
 	print ("The length of the new list of data points is: "), len(newListOfDataPoints);
 
@@ -263,6 +272,7 @@ def averagize(graphData, notes):
 		finalNotes.append(notesTiedToData[x])			#THIS JUST LET YOU SEE WHAT THE NOTES WILL LOOK LIKE, THIS ARRAY ISNT ACTUALLY USED, THE DATA JUST GETS WRITTEN
 
 	print chronoList
+	placeholderList = chronoList;
 	print finalNotes
 
 	cascadingOverlap(data, 0, 1);
@@ -311,35 +321,45 @@ with open('/home/nathan/hearCharts/BTCN4.txt', 'r') as f:
 #print timeData222;
 
 d = inputData();
-t = timeData222
-Y_MIN = min(d)
-Y_MAX = max(d)
+t = timeData222;
+Y_MIN = min(placeholderList);
+Y_MAX = max(placeholderList);
 X_VALS = range(0,len(d));
 
 
 
-print ("SECONDS LONG ISSSSSSSSSSSSS-", secondsLong)
-print("Length of data is: ", len(d))
-interval = float((secondsLong * 1000)/len(d));
+print ("SECONDS LONG ISSSSSSSSSSSSS-", secondsLong);
+print("Length of data is: ", len(placeholderList));
+interval = float((secondsLong * 1000)/len(X_VALS));
 
-print ("INTERVAL IS!!! - ", interval);
+process = subprocess.Popen(['ffmpeg',  '-i', './THEBOSSBATTLE2222.wav'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+stdout, stderr = process.communicate()
+matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
+
+print matches['hours']
+print matches['minutes']
+print matches['seconds']
+print(len(d))
 
 def update_line(num, line):
-    i = X_VALS[num]
-    line.set_data( [i, i], [Y_MIN, Y_MAX])
-    return line, 
+    i = X_VALS[num];
+    line.set_data( [i, i], [Y_MIN, Y_MAX]);
+    return line, ;
 
 
-fig = figure(figsize=(6.0, 3.0))
+fig = figure(figsize=(6.0, 4.0));
 
-plt.plot(d)
-l , v = plt.plot(0,0,6, 1, linewidth=1, color= 'black')
-plt.ylabel('$USD')
-plt.xlabel('Time')
+print ("INTERVAL IS!!! - ", interval);
+plt.plot(d);
+l , v = plt.plot(0,0,0,0, linewidth=1, color= 'black');
+plt.ylabel('$USD');
+plt.xlabel('Time');
 
-line_anim = animation.FuncAnimation(fig, update_line, len(X_VALS), fargs=(l, ), interval=float(interval), blit=False, repeat=False)
-zz = vlc.MediaPlayer("./THEBOSSBATTLE.wav");
-zz.play();
-plt.show()
+line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=85, blit=True, repeat=False);
+#zz = vlc.MediaPlayer("./THEBOSSBATTLE.wav");
 
+#zz.play();
 
+mywriter = animation.FFMpegWriter(fps=11.7233, bitrate=44100);			###########THE FPS NEEDS IS THE DETERMINING FACTOR IN THE LENGTH OF THE VIDEO SOMEHOW ??????
+line_anim.save('mymovie44444.mp4',writer=mywriter)	#### To get the correct video length you need to divide (numOfDataPointsOnGraph)/(audio length in seconds) and use that as fps
+plt.show();
