@@ -14,6 +14,7 @@ plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 
 import subprocess
 import re
+from collections import OrderedDict
 
 
 
@@ -96,7 +97,7 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 		data[0][1] = newFirstNote + testSamp + newSecondNote;
 		del data[1]
 
-		p = wave.open('./THEBOSSBATTLE2222.wav', 'wb');
+		p = wave.open('./THEBOSSBATTLE2222sack.wav', 'wb');
 		p.setparams(data[0][0]);
 
 		for i in range(0, len(data)):
@@ -105,7 +106,7 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 		print ("FRAME RATE IS - ", getRate)
 		p.close()
 
-		p = wave.open('./THEBOSSBATTLE2222.wav', 'rb');
+		p = wave.open('./THEBOSSBATTLE2222sack.wav', 'rb');
 		frames = p.getnframes()
 		rate = p.getframerate()
 		getRate2 = p.getparams();
@@ -249,15 +250,24 @@ def averagize(graphData, notes):
 	#print len()
 	intNewListOfDataPoints = [int(float(x)) for x in newListOfDataPoints]
 
-	cloneIntNewListOfDataPoints = intNewListOfDataPoints[:];
+	cloneIntNewListOfDataPoints = intNewListOfDataPoints[:];			## maybe refactor this in to one line with newListOfDataPoints declaration.
 
-	cloneIntNewListOfDataPoints.sort();			#these are sorted so they can be linked to the notes from highest to lowest etc
+	cloneIntNewListOfDataPoints.sort();			#these are sorted so they can be linked to the notes from highest to lowest etc, maybe refactor this too, just sort the list...
 
 	print notes, "\n\n\n\n\n";
 	print cloneIntNewListOfDataPoints, "\n\n\n\n\n";
 	chronoList = intNewListOfDataPoints[:];	#this list is flipped so it is chronological oldest to newest -- will depend on your list of data
 
-	notesTiedToData = dict(zip(cloneIntNewListOfDataPoints, notes));	#zips your notes and data together in order from lowest to highest or what have you
+	notesTiedToData = OrderedDict(zip(cloneIntNewListOfDataPoints, notes));	#zips your notes and data together in order from lowest to highest or what have you
+
+	minVal = (min(notesTiedToData, key=notesTiedToData.get));
+	print("MIN VALUE IS, ", minVal);
+	maxVal = (max(notesTiedToData, key=notesTiedToData.get));
+	print("MAX VALUE IS, ", maxVal);
+
+	notesTiedToData[maxVal] = './violinWavs/z.wav';
+	#notesTiedToData[minVal] = './violinWavs/ZZZZZZZZZZZZZZZZZZZZCRASHHHHHHH.wav';
+
 
 	print notesTiedToData, "\n\n\n\n\n";
 
@@ -273,7 +283,7 @@ def averagize(graphData, notes):
 
 	print chronoList
 	placeholderList = chronoList;
-	print finalNotes
+	print ("THIS IS THE FINAL SET OF NOTES TO BE WRITTEN!!!\n\n\n\n", finalNotes)
 
 	cascadingOverlap(data, 0, 1);
 
@@ -313,7 +323,7 @@ fig = Figure();
 timeData222 = [];
 
 
-with open('/home/nathan/hearCharts/BTCN4.txt', 'r') as f:
+with open('/home/nathan/hearCharts/BTCN.txt', 'r') as f:
     for line in f:
        timeData222.append(line.rstrip());
     #add error handling, and return something to pass perhaps
@@ -321,7 +331,7 @@ with open('/home/nathan/hearCharts/BTCN4.txt', 'r') as f:
 #print timeData222;
 
 d = inputData();
-t = timeData222;
+#t = timeData222;
 Y_MIN = min(placeholderList);
 Y_MAX = max(placeholderList);
 X_VALS = range(0,len(d));
@@ -332,7 +342,7 @@ print ("SECONDS LONG ISSSSSSSSSSSSS-", secondsLong);
 print("Length of data is: ", len(placeholderList));
 interval = float((secondsLong * 1000)/len(X_VALS));
 
-process = subprocess.Popen(['ffmpeg',  '-i', './THEBOSSBATTLE2222.wav'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+process = subprocess.Popen(['ffmpeg',  '-i', './THEBOSSBATTLE2222sack.wav'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 stdout, stderr = process.communicate()
 matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
 
@@ -349,17 +359,22 @@ def update_line(num, line):
 
 fig = figure(figsize=(6.0, 4.0));
 
+
+outputFPS = ceil(len(d)/secondsLong);
+
+print("FPS IS -=0=-=-=0=-=-=0=-=-=0=- ", (len(d)/secondsLong), outputFPS);
+
 print ("INTERVAL IS!!! - ", interval);
 plt.plot(d);
-l , v = plt.plot(0,0,0,0, linewidth=1, color= 'black');
+l , v = plt.plot(0,0,-5,0, linewidth=1, color= 'red');
 plt.ylabel('$USD');
 plt.xlabel('Time');
 
-line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=85, blit=True, repeat=False);
+line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=85, blit=True, repeat=False, repeat_delay=10000);
 #zz = vlc.MediaPlayer("./THEBOSSBATTLE.wav");
 
 #zz.play();
 
-mywriter = animation.FFMpegWriter(fps=11.7233, bitrate=44100);			###########THE FPS NEEDS IS THE DETERMINING FACTOR IN THE LENGTH OF THE VIDEO SOMEHOW ??????
+mywriter = animation.FFMpegWriter(fps=(outputFPS + 0.20), bitrate=44100);			###########THE FPS NEEDS IS THE DETERMINING FACTOR IN THE LENGTH OF THE VIDEO SOMEHOW ??????
 line_anim.save('mymovie44444.mp4',writer=mywriter)	#### To get the correct video length you need to divide (numOfDataPointsOnGraph)/(audio length in seconds) and use that as fps
-plt.show();
+#plt.show();
