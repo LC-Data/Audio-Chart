@@ -5,17 +5,16 @@ import math
 import audioop
 from pylab import *
 import numpy as np
-#import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.figure import Figure
 import vlc
-plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-plt.rcParams['animation.convert_path'] = '/usr/bin/convert'
-
 import subprocess
 import re
 from collections import OrderedDict
+
+plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+plt.rcParams['animation.convert_path'] = '/usr/bin/convert'
 
 
 def inputData():
@@ -78,57 +77,53 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 
 def cascadingOverlap(data, indexOne, indexTwo):
 
-	firstVar = indexOne;			#just refactor this to use the parameter names instead of redeclaring them right here?
-	secondVar = indexTwo;
-	
-	print firstVar
-	if len(data[secondVar][1]) > len(data[firstVar][1]):
-		theOverlapSize = math.trunc(len(data[firstVar][1]) * 0.50);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
+	#print indexOne
+	if len(data[indexTwo][1]) > len(data[indexOne][1]):
+		theOverlapSize = math.trunc(len(data[indexOne][1]) * 0.50);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
 	else:
-		theOverlapSize = math.trunc(len(data[secondVar][1]) * 0.50);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
+		theOverlapSize = math.trunc(len(data[indexTwo][1]) * 0.50);	 	## 	!!! THE OVERLAP (for now) HAS TO BE 0.5 OF THE SMALLER NOTE!!
 
-	print ("The length of the first note in bytes is " + str(len(data[firstVar][1])));
-	print ("The length of the second note in bytes is " + str(len(data[secondVar][1])));
+	print ("The length of the first note in bytes is " + str(len(data[indexOne][1])));
+	print ("The length of the second note in bytes is " + str(len(data[indexTwo][1])));
 	print ("The length of the OVERLAP in bytes is " + str(theOverlapSize));
 
-	newFirstNote = data[firstVar][1][: - theOverlapSize];		##	"cut" the first audio file to exclude the trailing lengh of the overlap
-	newSecondNote = data[secondVar][1][theOverlapSize:];		## same to the second (the audio is cut from the beginnning of this note)
+	newFirstNote = data[indexOne][1][: - theOverlapSize];		##	"cut" the first audio file to exclude the trailing lengh of the overlap
+	newSecondNote = data[indexTwo][1][theOverlapSize:];		## same to the second (the audio is cut from the beginnning of this note)
 
 	if len(newFirstNote) %2 != 0:
 		print("The number of bytes in the first note is uneven!!=-=-=-=-=-=-=-=-=-", len(newFirstNote));
-		newFirstNote = data[firstVar][1][: - (theOverlapSize) - 1];
+		newFirstNote = data[indexOne][1][: - (theOverlapSize) - 1];
 		print("Attempted to correct byte length=-=-=-=-=-=-", len(newFirstNote));
-#		newSecondNote = data[secondVar][1][ - (theOverlapSize) - 1:];			#is this line just wrong?
+#		newSecondNote = data[indexTwo][1][ - (theOverlapSize) - 1:];			#is this line just wrong?
 
 
-	if (len(data[firstVar][1][:theOverlapSize]) % 2 == 0):
-		overlapPart1 = data[firstVar][1][ - (theOverlapSize) : ];
+	if (len(data[indexOne][1][:theOverlapSize]) % 2 == 0):
+		overlapPart1 = data[indexOne][1][ - (theOverlapSize) : ];
 		print "even number of frames."
 		print (len(overlapPart1))
 
 	else:
 		print "ODD AS FUDGE"
-		print (len(data[firstVar][1][:theOverlapSize]))
-		overlapPart1 = data[firstVar][1][ - (theOverlapSize - 1) : ];
+		print (len(data[indexOne][1][:theOverlapSize]))
+		overlapPart1 = data[indexOne][1][ - (theOverlapSize - 1) : ];
 		print ("NOW EVEN AS FUDGE!", len(overlapPart1))
 
 
-	if (len(data[secondVar][1][:theOverlapSize]) % 2 == 0):
-		overlapPart2 = data[secondVar][1][ :  theOverlapSize ];
+	if (len(data[indexTwo][1][:theOverlapSize]) % 2 == 0):
+		overlapPart2 = data[indexTwo][1][ :  theOverlapSize ];
 		print "even number of frames."
 		print (len(overlapPart2))
 
 	else:
 		print "ODD AS FUDGE"
-		print (len(data[secondVar][1][:theOverlapSize]))
-		overlapPart2 = data[secondVar][1][ :  (theOverlapSize - 1)];
+		print (len(data[indexTwo][1][:theOverlapSize]))
+		overlapPart2 = data[indexTwo][1][ :  (theOverlapSize - 1)];
 		print ("NOW EVEN AS FUDGE!", len(overlapPart2))
 
-			## the end of the second note
 
 	#print ("The length of the first note without it's overlap is " + str(len(newFirstNote)));
 
-	data[firstVar][1] = data[firstVar][1][:theOverlapSize]; 	#make wav segments to "add"(overlap) the same size -- this is required.
+	data[indexOne][1] = data[indexOne][1][:theOverlapSize]; 	#make wav segments to "add"(overlap) the same size -- this is required.
 
 	print ("The length of the first overlap in bytes is " + str(len(overlapPart1)))
 
@@ -137,13 +132,13 @@ def cascadingOverlap(data, indexOne, indexTwo):
 	testSamp = audioop.add(overlapPart1, overlapPart2, 2);	#This is an overlap
 
 
-	if len(data) == 2:	#end condition, because firstVar is +1 on secondVat, but secondVar takes the note AFTER firstVar
+	if len(data) == 2:	#end condition, because indexOne is +1 on secondVar, but indexTwo takes the note AFTER indexOne
 		
-		writeAudio(data, newFirstNote, testSamp, newSecondNote, True, firstVar, secondVar)
+		writeAudio(data, newFirstNote, testSamp, newSecondNote, True, indexOne, indexTwo)
 		drawAndSave();
 
 	else:
-		writeAudio(data, newFirstNote, testSamp, newSecondNote, False, firstVar, secondVar)
+		writeAudio(data, newFirstNote, testSamp, newSecondNote, False, indexOne, indexTwo)
 
 
 
@@ -168,17 +163,16 @@ def averagize(graphData, notes):
 
 	print len(newListOfDataPoints), "\n";
 	#print len()
-	intNewListOfDataPoints = [int(float(x)) for x in newListOfDataPoints]
+	newListOfDataPoints = [int(float(x)) for x in newListOfDataPoints];
 
-	cloneIntNewListOfDataPoints = intNewListOfDataPoints[:];			## maybe refactor this in to one line with newListOfDataPoints declaration.
-
-	cloneIntNewListOfDataPoints.sort();			#these are sorted so they can be linked to the notes from highest to lowest etc, maybe refactor this too, just sort the list...
+	sortedNewListOfDataPoints = newListOfDataPoints[:];
+	sortedNewListOfDataPoints.sort();			## maybe refactor this in to one line with newListOfDataPoints declaration.
+	#these are sorted so they can be linked to the notes from highest to lowest etc, maybe refactor this too, just sort the list...
 
 	print notes, "\n\n\n\n\n";
-	print cloneIntNewListOfDataPoints, "\n\n\n\n\n";
-	chronoList = intNewListOfDataPoints[:];	#this list is flipped so it is chronological oldest to newest -- will depend on your list of data
-
-	notesTiedToData = OrderedDict(zip(cloneIntNewListOfDataPoints, notes));	#zips your notes and data together in order from lowest to highest or what have you
+	print newListOfDataPoints, "\n\n\n\n\n";
+	
+	notesTiedToData = OrderedDict(zip(sortedNewListOfDataPoints, notes));	#zips your notes and data together in order from lowest to highest or what have you
 
 	minVal = (min(notesTiedToData, key=notesTiedToData.get));
 	print("MIN VALUE IS, ", minVal);
@@ -193,16 +187,16 @@ def averagize(graphData, notes):
 
 	print notesTiedToData.keys(), " THESE ARE THE KEYS \n\n";
 	
-	for i in range(0,len(chronoList)):
-		w = wave.open(notesTiedToData[chronoList[i]], 'rb')
-		data.append( [w.getparams(), w.readframes(w.getnframes())] )
-		w.close()
+	for i in range(0,len(newListOfDataPoints)):
+		w = wave.open(notesTiedToData[newListOfDataPoints[i]], 'rb');
+		data.append( [w.getparams(), w.readframes(w.getnframes())] );
+		w.close();
 
-	for x in chronoList:
-		finalNotes.append(notesTiedToData[x])			#THIS JUST LET YOU SEE WHAT THE NOTES WILL LOOK LIKE, THIS ARRAY ISNT ACTUALLY USED, THE DATA JUST GETS WRITTEN
+	for x in newListOfDataPoints:
+		finalNotes.append(notesTiedToData[x]);			#THIS JUST LET YOU SEE WHAT THE NOTES WILL LOOK LIKE, THIS ARRAY ISNT ACTUALLY USED, THE DATA JUST GETS WRITTEN
 
-	print chronoList
-	print ("THIS IS THE FINAL SET OF NOTES TO BE WRITTEN!!!\n\n\n\n", finalNotes)
+	print newListOfDataPoints;
+	print ("THIS IS THE FINAL SET OF NOTES TO BE WRITTEN!!!\n\n\n\n", finalNotes);
 
 	cascadingOverlap(data, 0, 1);	#overlap the notes, starting with note[0] and note [1]
 
@@ -219,17 +213,13 @@ def drawAndSave():
 
 	fig = Figure();
 	d = inputData();
-	#timeData222 = [];		### Maybe even just spoof this data, who cares. This is just needs to be (I think) the same length as the x values, just need data there.
 	Y_MIN = min(d);
 	Y_MAX = max(d);
 	X_VALS = range(0,len(d));
 
-
-	p = wave.open('./TESTAUDIO.wav', 'rb');			#reading audio data
+	p = wave.open('./TESTAUDIO.wav', 'rb');			#reading audio data just for the params to calculate the length of the audio file
 	frames = p.getnframes()
 	rate = p.getframerate()
-	#getRate2 = p.getparams();		##probably dont need this, get's the parameters as a whole of this audio file.
-	#print ("FINAL PARAMETERS ARE - ", getRate2);
 
 	secondsLong = frames/float(rate);
 
@@ -240,35 +230,10 @@ def drawAndSave():
 
 	p.close();
 
-	"""
-	with open('/home/nathan/hearCharts/BTCN.txt', 'r') as f:
-	    for line in f:
-	       timeData222.append(line.rstrip());
-	    add error handling, and return something to pass perhaps
-		print ("number of data points in this sample... " + str(len(graphData))), '\n';
-	print timeData222;
-
-	t = timeData222;
-	"""
-
 	print("Length of data is: ", len(d));
 	interval = ceil((secondsLong * 1000)/len(X_VALS));
 
-	"""
-	process = subprocess.Popen(['ffmpeg',  '-i', './THEBOSSBATTLE2222sack.wav'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-	stdout, stderr = process.communicate()
-	matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
-
-	print matches['hours']
-	print matches['minutes']
-	print matches['seconds']
-	"""
-
 	fig = figure(figsize=(16.0, 9.0));
-
-	#outputFPS = ceil(len(d)/secondsLong);
-
-	#print("FPS IS -=0=-=-=0=-=-=0=-=-=0=- ", (len(d)/secondsLong), outputFPS);
 
 	print ("INTERVAL IS!!! - ", interval);
 	plt.plot(d);
