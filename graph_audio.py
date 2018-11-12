@@ -18,10 +18,6 @@ import re
 from collections import OrderedDict
 
 
-
-secondsLong = None;
-placeholderList = [];
-
 def inputData():
 
 	graphData = [];
@@ -32,18 +28,6 @@ def inputData():
 	    #add error handling, and return something to pass perhaps
 		#print ("number of data points in this sample... " + str(len(graphData))), '\n';
 	return graphData;
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -67,80 +51,34 @@ def noteSet():			#This should eventually take an instrument/set of notes as a pa
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, indexTwo):
-	global secondsLong;
+
 	indexOne = indexOne;
 	indexTwo = indexTwo;
 	
 	if trigger == False:
 		data[0][1] = newFirstNote + testSamp + newSecondNote;
-		del data[1]
+		del data[1];
 		cascadingOverlap(data, indexOne, indexTwo);
 
 	else:
 		data[0][1] = newFirstNote + testSamp + newSecondNote;
-		del data[1]
+		del data[1];
 
-		p = wave.open('./TESTAUDIO.wav', 'wb');
+		p = wave.open('./TESTAUDIO.wav', 'wb');			#writing audio data
 		p.setparams(data[0][0]);
 
 		for i in range(0, len(data)):
 			p.writeframes(data[i][1])
 		getRate = p.getparams();
-		print ("FRAME RATE IS - ", getRate)
+		print ("PARAMETERS WRITTEN ARE - ", getRate)
 		p.close()
-
-		p = wave.open('./TESTAUDIO.wav', 'rb');
-		frames = p.getnframes()
-		rate = p.getframerate()
-		getRate2 = p.getparams();		##probably dont need this, get's the parameters as a whole of this audio file.
-		print ("FINAL FRAME RATE IS - ", getRate2);
-
-		secondsLong = frames/float(rate);
-
-		print("seconds long is : ", float(secondsLong), type(secondsLong));
-		print("Total number of audio frames is : ", float(frames));
-		print("The audio framerate is : ", float(rate));
-		print("SUCCESSS!!'/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\'");
-
-		p.close();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 def cascadingOverlap(data, indexOne, indexTwo):
 
-	firstVar = indexOne;
+	firstVar = indexOne;			#just refactor this to use the parameter names instead of redeclaring them right here?
 	secondVar = indexTwo;
 	
 	print firstVar
@@ -157,11 +95,10 @@ def cascadingOverlap(data, indexOne, indexTwo):
 	newSecondNote = data[secondVar][1][theOverlapSize:];		## same to the second (the audio is cut from the beginnning of this note)
 
 	if len(newFirstNote) %2 != 0:
-		print("IT'S FUCKED!!=-=-=-=-=-=-=-=-=-", len(newFirstNote));
+		print("The number of bytes in the first note is uneven!!=-=-=-=-=-=-=-=-=-", len(newFirstNote));
 		newFirstNote = data[firstVar][1][: - (theOverlapSize) - 1];
-		print("MAYBE IT'S UNFUCKED!=-=-=-=-=-=-", len(newFirstNote));
-		newSecondNote = data[secondVar][1][ - (theOverlapSize) - 1:];
-
+		print("Attempted to correct byte length=-=-=-=-=-=-", len(newFirstNote));
+#		newSecondNote = data[secondVar][1][ - (theOverlapSize) - 1:];			#is this line just wrong?
 
 
 	if (len(data[firstVar][1][:theOverlapSize]) % 2 == 0):
@@ -189,7 +126,7 @@ def cascadingOverlap(data, indexOne, indexTwo):
 
 			## the end of the second note
 
-	print ("The length of the first note without it's overlap is " + str(len(newFirstNote)));
+	#print ("The length of the first note without it's overlap is " + str(len(newFirstNote)));
 
 	data[firstVar][1] = data[firstVar][1][:theOverlapSize]; 	#make wav segments to "add"(overlap) the same size -- this is required.
 
@@ -197,41 +134,22 @@ def cascadingOverlap(data, indexOne, indexTwo):
 
 	print ("The length of the second overlap in bytes is " + str(len(overlapPart2)))
 
-	print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-	testSamp = audioop.add(overlapPart1, overlapPart2, 2);
+	testSamp = audioop.add(overlapPart1, overlapPart2, 2);	#This is an overlap
 
-	#firstVar = firstVar + 2;
-	#secondVar = secondVar + 2;
-	#print ("HELLO !!", firstVar)
+
 	if len(data) == 2:	#end condition, because firstVar is +1 on secondVat, but secondVar takes the note AFTER firstVar
 		
 		writeAudio(data, newFirstNote, testSamp, newSecondNote, True, firstVar, secondVar)
+		drawAndSave();
+
 	else:
-		print(" IS NEW FIRST NOTE STIILLLLL FUDGED?!?!?!?!?!!?!? ----------------------------------------------------------", str(len(newFirstNote)))
 		writeAudio(data, newFirstNote, testSamp, newSecondNote, False, firstVar, secondVar)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 def averagize(graphData, notes):
-	global placeholderList
+
 	data = [];
 	numOfNotes = len(notes);
 	numOfDataPoints = len(graphData);
@@ -267,8 +185,8 @@ def averagize(graphData, notes):
 	maxVal = (max(notesTiedToData, key=notesTiedToData.get));
 	print("MAX VALUE IS, ", maxVal);
 
-	notesTiedToData[maxVal] = './violinWavs/z.wav';
-	#notesTiedToData[minVal] = './violinWavs/ZZZZZZZZZZZZZZZZZZZZCRASHHHHHHH.wav';
+	notesTiedToData[maxVal] = './violinWavs/z.wav';				# Turns the highest data value in to a clashing cymbal sound
+	#notesTiedToData[minVal] = './violinWavs/ZZZZZZZZZZZZZZZZZZZZCRASHHHHHHH.wav';		#lowest in to whatever sound.
 
 
 	print notesTiedToData, "\n\n\n\n\n";
@@ -284,115 +202,83 @@ def averagize(graphData, notes):
 		finalNotes.append(notesTiedToData[x])			#THIS JUST LET YOU SEE WHAT THE NOTES WILL LOOK LIKE, THIS ARRAY ISNT ACTUALLY USED, THE DATA JUST GETS WRITTEN
 
 	print chronoList
-	placeholderList = chronoList;
 	print ("THIS IS THE FINAL SET OF NOTES TO BE WRITTEN!!!\n\n\n\n", finalNotes)
 
-	cascadingOverlap(data, 0, 1);
+	cascadingOverlap(data, 0, 1);	#overlap the notes, starting with note[0] and note [1]
 
 
 
 
+def drawAndSave():
+
+	def update_line(num, line):
+	    i = X_VALS[num];
+	    line.set_data( [i, i], [Y_MIN, Y_MAX]);
+	    return line, ;
 
 
+	fig = Figure();
+	d = inputData();
+	#timeData222 = [];		### Maybe even just spoof this data, who cares. This is just needs to be (I think) the same length as the x values, just need data there.
+	Y_MIN = min(d);
+	Y_MAX = max(d);
+	X_VALS = range(0,len(d));
 
 
+	p = wave.open('./TESTAUDIO.wav', 'rb');			#reading audio data
+	frames = p.getnframes()
+	rate = p.getframerate()
+	#getRate2 = p.getparams();		##probably dont need this, get's the parameters as a whole of this audio file.
+	#print ("FINAL PARAMETERS ARE - ", getRate2);
 
+	secondsLong = frames/float(rate);
 
-	
+	print("seconds long is : ", float(secondsLong), type(secondsLong));
+	print("Total number of audio frames is : ", float(frames));
+	print("The audio framerate is : ", float(rate));
+	print("SUCCESSS!!'/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\'");
+
+	p.close();
+
+	"""
+	with open('/home/nathan/hearCharts/BTCN.txt', 'r') as f:
+	    for line in f:
+	       timeData222.append(line.rstrip());
+	    add error handling, and return something to pass perhaps
+		print ("number of data points in this sample... " + str(len(graphData))), '\n';
+	print timeData222;
+
+	t = timeData222;
+	"""
+
+	print("Length of data is: ", len(d));
+	interval = ceil((secondsLong * 1000)/len(X_VALS));
+
+	"""
+	process = subprocess.Popen(['ffmpeg',  '-i', './THEBOSSBATTLE2222sack.wav'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+	stdout, stderr = process.communicate()
+	matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
+
+	print matches['hours']
+	print matches['minutes']
+	print matches['seconds']
+	"""
+
+	fig = figure(figsize=(16.0, 9.0));
+
+	#outputFPS = ceil(len(d)/secondsLong);
+
+	#print("FPS IS -=0=-=-=0=-=-=0=-=-=0=- ", (len(d)/secondsLong), outputFPS);
+
+	print ("INTERVAL IS!!! - ", interval);
+	plt.plot(d);
+	l , v = plt.plot(0,0,-5,0, linewidth=1, color= 'red');
+	plt.ylabel('$USD');		#change these -- they are the axes labels
+	plt.xlabel('Time');
+
+	line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=(interval), blit=True, repeat=False);
+
+	#plt.show();
+	line_anim.save('TESTVIDEO.mp4');
 
 averagize(inputData(), noteSet());
-
-
-
-########### TO DO ##########
-# - KEEP REFACTORING ALL OF THIS CRAP -- 
-# - RELATIVISTIC NOTES TO DATA... if the data spikes REALLY high the note should too!	(SOMEWHAT helped this issue with the octaves)
-# - Choose chronological or reverse chronological data input.
-# - In the test file I got .wav overlapping figured out with audioop library, write a method to chain overlap the notes and integrate it here
-# 	- to do this the overlapped data needs to be the same length in bytes (or time in real life...), consider overlappinng a % of the incoming note's length to the end of
-#	- the previous note by the same length.\\\\
-
-
-
-
-
-fig = Figure();
-
-#matplotlib.use("gtk")
-
-#graphData222 = [];
-
-timeData222 = [];
-
-
-with open('/home/nathan/hearCharts/BTCN.txt', 'r') as f:
-    for line in f:
-       timeData222.append(line.rstrip());
-    #add error handling, and return something to pass perhaps
-	#print ("number of data points in this sample... " + str(len(graphData))), '\n';
-#print timeData222;
-
-d = inputData();
-#t = timeData222;
-Y_MIN = min(placeholderList);
-Y_MAX = max(placeholderList);
-X_VALS = range(0,len(d));
-
-
-
-print ("SECONDS LONG ISSSSSSSSSSSSS-", secondsLong);
-print("Length of data is: ", len(placeholderList));
-interval = ceil((secondsLong * 1000)/len(X_VALS));
-
-process = subprocess.Popen(['ffmpeg',  '-i', './THEBOSSBATTLE2222sack.wav'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-stdout, stderr = process.communicate()
-matches = re.search(r"Duration:\s{1}(?P<hours>\d+?):(?P<minutes>\d+?):(?P<seconds>\d+\.\d+?),", stdout, re.DOTALL).groupdict()
-
-print matches['hours']
-print matches['minutes']
-print matches['seconds']
-print(len(d))
-
-def update_line(num, line):
-    i = X_VALS[num];
-    line.set_data( [i, i], [Y_MIN, Y_MAX]);
-    return line, ;
-
-
-
-
-
-
-
-
-
-fig = figure(figsize=(16.0, 9.0));
-
-#outputFPS = ceil(len(d)/secondsLong);
-
-#print("FPS IS -=0=-=-=0=-=-=0=-=-=0=- ", (len(d)/secondsLong), outputFPS);
-
-
-print ("Range of Xvalues is... ", len(X_VALS));
-
-print ("INTERVAL IS!!! - ", interval);
-plt.plot(d);
-l , v = plt.plot(0,0,-5,0, linewidth=1, color= 'red');
-plt.ylabel('$USD');
-plt.xlabel('Time');
-
-
-
-
-line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=(interval), blit=True, repeat=False);
-
-#zz = vlc.MediaPlayer("./THEBOSSBATTLE.wav");
-
-#zz.play();
-
-#mywriter = animation.FFMpegWriter(fps=(outputFPS + 0.20), bitrate=44100);			###########THE FPS NEEDS IS THE DETERMINING FACTOR IN THE LENGTH OF THE VIDEO SOMEHOW ??????
-
-	#### To get the correct video length you need to divide (numOfDataPointsOnGraph)/(audio length in seconds) and use that as fps
-#plt.show();
-line_anim.save('TESTVIDEO.mp4')
-#line_anim.save('myAnimation.gif', writer='imagemagick', fps=30)
