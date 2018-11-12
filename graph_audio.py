@@ -11,11 +11,11 @@ import matplotlib.animation as animation
 from matplotlib.figure import Figure
 import vlc
 plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+plt.rcParams['animation.convert_path'] = '/usr/bin/convert'
 
 import subprocess
 import re
 from collections import OrderedDict
-
 
 
 
@@ -97,7 +97,7 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 		data[0][1] = newFirstNote + testSamp + newSecondNote;
 		del data[1]
 
-		p = wave.open('./THEBOSSBATTLE2222sack.wav', 'wb');
+		p = wave.open('./TESTAUDIO.wav', 'wb');
 		p.setparams(data[0][0]);
 
 		for i in range(0, len(data)):
@@ -106,15 +106,17 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 		print ("FRAME RATE IS - ", getRate)
 		p.close()
 
-		p = wave.open('./THEBOSSBATTLE2222sack.wav', 'rb');
+		p = wave.open('./TESTAUDIO.wav', 'rb');
 		frames = p.getnframes()
 		rate = p.getframerate()
-		getRate2 = p.getparams();
+		getRate2 = p.getparams();		##probably dont need this, get's the parameters as a whole of this audio file.
 		print ("FINAL FRAME RATE IS - ", getRate2);
 
 		secondsLong = frames/float(rate);
 
 		print("seconds long is : ", float(secondsLong), type(secondsLong));
+		print("Total number of audio frames is : ", float(frames));
+		print("The audio framerate is : ", float(rate));
 		print("SUCCESSS!!'/\\/\\/\\/\\/\\/\\/\\/\\/\\/\\'");
 
 		p.close();
@@ -340,7 +342,7 @@ X_VALS = range(0,len(d));
 
 print ("SECONDS LONG ISSSSSSSSSSSSS-", secondsLong);
 print("Length of data is: ", len(placeholderList));
-interval = float((secondsLong * 1000)/len(X_VALS));
+interval = ceil((secondsLong * 1000)/len(X_VALS));
 
 process = subprocess.Popen(['ffmpeg',  '-i', './THEBOSSBATTLE2222sack.wav'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 stdout, stderr = process.communicate()
@@ -357,12 +359,21 @@ def update_line(num, line):
     return line, ;
 
 
-fig = figure(figsize=(6.0, 4.0));
 
 
-outputFPS = ceil(len(d)/secondsLong);
 
-print("FPS IS -=0=-=-=0=-=-=0=-=-=0=- ", (len(d)/secondsLong), outputFPS);
+
+
+
+
+fig = figure(figsize=(16.0, 9.0));
+
+#outputFPS = ceil(len(d)/secondsLong);
+
+#print("FPS IS -=0=-=-=0=-=-=0=-=-=0=- ", (len(d)/secondsLong), outputFPS);
+
+
+print ("Range of Xvalues is... ", len(X_VALS));
 
 print ("INTERVAL IS!!! - ", interval);
 plt.plot(d);
@@ -370,11 +381,18 @@ l , v = plt.plot(0,0,-5,0, linewidth=1, color= 'red');
 plt.ylabel('$USD');
 plt.xlabel('Time');
 
-line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=85, blit=True, repeat=False, repeat_delay=10000);
+
+
+
+line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=(interval), blit=True, repeat=False);
+
 #zz = vlc.MediaPlayer("./THEBOSSBATTLE.wav");
 
 #zz.play();
 
-mywriter = animation.FFMpegWriter(fps=(outputFPS + 0.20), bitrate=44100);			###########THE FPS NEEDS IS THE DETERMINING FACTOR IN THE LENGTH OF THE VIDEO SOMEHOW ??????
-line_anim.save('mymovie44444.mp4',writer=mywriter)	#### To get the correct video length you need to divide (numOfDataPointsOnGraph)/(audio length in seconds) and use that as fps
+#mywriter = animation.FFMpegWriter(fps=(outputFPS + 0.20), bitrate=44100);			###########THE FPS NEEDS IS THE DETERMINING FACTOR IN THE LENGTH OF THE VIDEO SOMEHOW ??????
+
+	#### To get the correct video length you need to divide (numOfDataPointsOnGraph)/(audio length in seconds) and use that as fps
 #plt.show();
+line_anim.save('TESTVIDEO.mp4')
+#line_anim.save('myAnimation.gif', writer='imagemagick', fps=30)
