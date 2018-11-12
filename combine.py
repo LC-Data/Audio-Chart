@@ -15,6 +15,6 @@ plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 import subprocess
 import re
 
-cmd = 'ffmpeg -y -i THEBOSSBATTLE2222sack.wav  -r 30 -i mymovie44444.mp4  -filter:a aresample=async=1 -c:a flac -c:v copy SACCCCCKKKK.mkv'
+cmd = 'ffmpeg -i TESTVIDEO.mp4 -i TESTAUDIO.wav  -c:v copy -c:a aac -strict experimental NUTS.mp4'
 subprocess.call(cmd, shell=True)                                     # "Muxing Done
 print('Muxing Done')
