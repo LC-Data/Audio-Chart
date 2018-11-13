@@ -21,7 +21,7 @@ def inputData():
 
 	graphData = [];
 
-	with open('blizzSmall.txt', 'r') as f:
+	with open('BTCN.txt', 'r') as f:
 	    for line in f:
 	       graphData.append(float(line.rstrip()));		### If this is not appended as a float, it will default to string which LUCKILY still sorted as numbers
 	    #add error handling, and return something to pass perhaps
@@ -231,7 +231,7 @@ def drawAndSave():
 	p.close();
 
 	print("Length of data is: ", len(d));
-	interval = floor(((secondsLong) * 1000)/len(X_VALS));	#need to play with this sometimes to sync the clash perfectly (adding +/-1 after secondsLong is experimental)
+	interval = floor(((secondsLong - 1) * 1000)/len(X_VALS));	#need to play with this sometimes to sync the clash perfectly (adding +/-1 after secondsLong is experimental)
 
 	fig = figure(figsize=(16.0, 9.0));
 	ax = fig.add_subplot(1, 1, 1)
