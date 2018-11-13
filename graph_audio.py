@@ -21,7 +21,7 @@ def inputData():
 
 	graphData = [];
 
-	with open('BTCN.txt', 'r') as f:
+	with open('blizzSmall.txt', 'r') as f:
 	    for line in f:
 	       graphData.append(float(line.rstrip()));		### If this is not appended as a float, it will default to string which LUCKILY still sorted as numbers
 	    #add error handling, and return something to pass perhaps
@@ -32,7 +32,7 @@ def inputData():
 
 def noteSet():			#This should eventually take an instrument/set of notes as a parameter
 
-	notesDirectory = "./violinWavs/";						#path to your music note .wav files
+	notesDirectory = "./violinWavs2/";						#path to your music note .wav files
 	notes = [];																#array of the above files
 	notesWithPath = [];													#array of the above files including the path!
 	
@@ -179,8 +179,8 @@ def averagize(graphData, notes):
 	maxVal = (max(notesTiedToData, key=notesTiedToData.get));
 	print("MAX VALUE IS, ", maxVal);
 
-	notesTiedToData[maxVal] = './violinWavs/z.wav';				# Turns the highest data value in to a clashing cymbal sound
-	#notesTiedToData[minVal] = './violinWavs/ZZZZZZZZZZZZZZZZZZZZCRASHHHHHHH.wav';		#lowest in to whatever sound.
+	notesTiedToData[maxVal] = './violinWavs2/z.wav';				# Turns the highest data value in to a clashing cymbal sound
+	#notesTiedToData[minVal] = './violinWavs2/ZZZZZZZZZZZZZZZZZZZZCRASHHHHHHH.wav';		#lowest in to whatever sound.
 
 
 	print notesTiedToData, "\n\n\n\n\n";
@@ -231,19 +231,22 @@ def drawAndSave():
 	p.close();
 
 	print("Length of data is: ", len(d));
-	interval = ceil((secondsLong * 1000)/len(X_VALS));
+	interval = floor(((secondsLong) * 1000)/len(X_VALS));	#need to play with this sometimes to sync the clash perfectly (adding +/-1 after secondsLong is experimental)
 
 	fig = figure(figsize=(16.0, 9.0));
-
+	ax = fig.add_subplot(1, 1, 1)
+	ax.set_facecolor("k")
 	print ("INTERVAL IS!!! - ", interval);
 	plt.plot(d);
-	l , v = plt.plot(0,0,-5,0, linewidth=1, color= 'red');
+	l , v = plt.plot(0,0,5,0, linewidth=1, color= 'purple');
 	plt.ylabel('$USD');		#change these -- they are the axes labels
 	plt.xlabel('Time');
 
-	line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=(interval), blit=True, repeat=False);
+	line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=(interval), blit=False, repeat=False);
 
 	#plt.show();
 	line_anim.save('TESTVIDEO.mp4');
+
+
 
 averagize(inputData(), noteSet());
