@@ -231,7 +231,7 @@ def drawAndSave():
 	p.close();
 
 	print("Length of data is: ", len(d));
-	interval = floor(((secondsLong) * 1000)/len(X_VALS)) + (0.1);	#need to play with this sometimes to sync the clash perfectly (adding +/-1 after secondsLong is experimental)
+	interval = ((((secondsLong) * 1000) - 650)/len(X_VALS));	#need to play with this sometimes to sync the clash perfectly (adding +/-1 after secondsLong is experimental)
 
 	fig = figure(figsize=(16.0, 9.0));
 	ax = fig.add_subplot(1, 1, 1)
