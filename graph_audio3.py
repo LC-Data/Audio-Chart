@@ -1,4 +1,3 @@
-
 import wave
 import os
 import math
@@ -8,20 +7,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.figure import Figure
-import vlc
+#import vlc
 import subprocess
 import re
 from collections import OrderedDict
 
-plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-plt.rcParams['animation.convert_path'] = '/usr/bin/convert'
+plt.rcParams['animation.ffmpeg_path'] = r'C:\FFmpeg\bin\ffmpeg.exe'
+#plt.rcParams['animation.convert_path'] = '/usr/bin/convert'
 
 
 def inputData():
 
 	graphData = [];
 
-	with open('BTCN.txt', 'r') as f:
+	with open('BTCN.txt.txt', 'r') as f:
 	    for line in f:
 	       graphData.append(float(line.rstrip()));		### If this is not appended as a float, it will default to string which LUCKILY still sorted as numbers
 	    #add error handling, and return something to pass perhaps
@@ -32,7 +31,7 @@ def inputData():
 
 def noteSet():			#This should eventually take an instrument/set of notes as a parameter
 
-	notesDirectory = "./violinWavs2/";						#path to your music note .wav files
+	notesDirectory = "./violinWavs/";						#path to your music note .wav files
 	notes = [];																#array of the above files
 	notesWithPath = [];													#array of the above files including the path!
 	
@@ -179,7 +178,7 @@ def averagize(graphData, notes):
 	maxVal = (max(notesTiedToData, key=notesTiedToData.get));
 	print(("MAX VALUE IS, ", maxVal));
 
-	notesTiedToData[maxVal] = './violinWavs2/z.wav';				# Turns the highest data value in to a clashing cymbal sound
+	notesTiedToData[maxVal] = './violinWavs/z.wav';				# Turns the highest data value in to a clashing cymbal sound
 	#notesTiedToData[minVal] = './violinWavs2/ZZZZZZZZZZZZZZZZZZZZCRASHHHHHHH.wav';		#lowest in to whatever sound.
 
 
