@@ -1,16 +1,24 @@
 <?php
 
+$now = DateTime::createFromFormat('U.u', microtime(true));      //get the exact datetime of upload, ensures unique file name
+$nowFormatted = $now->format("m-d-Y-H:i:s:u");      //format the datetime to be a usable string
+$target_dir = "/var/www/html/uploads/";             //where we are uploading to
+$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);         //the barebones file name "abc.txt"
+$uploadOk = 1;                                  //an upload flag. default flag set to "1", ok.
+$fileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));      //grabs the extension of file uploaded so we can ensure it is acceptable
+$fileNameWithPath = ($target_dir . $nowFormatted . ".". $fileType);     //the path to the file on our server, !!!! NOTICE WE RENAME THE FILE TO THAT UNIQUE DATETIME !!!!
+$fileNameWithoutExtension = ($target_dir . $nowFormatted);                   // ^ the above minus the file extension - we remove the extension so combine.py can handle .wav and .mp4 files that have the same name.
 
-$target_dir = "/var/www/html/uploads/";
-$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
-$uploadOk = 1;
-$fileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-// Check if image file is a actual image or fake image
+
+
+
+
+//Check if something was actually posted
 if(isset($_POST["submit"])) {
     $uploadOK = 1;
 }
 // Check if file already exists
-if (file_exists($target_file)) {
+if (file_exists($fileNameWithPath)) {
     echo "Sorry, file already exists.";
     $uploadOk = 0;
 }
@@ -29,7 +37,7 @@ if ($uploadOk == 0) {
     echo "Sorry, your file was not uploaded.";
 // if everything is ok, try to upload file
 } else {
-    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $fileNameWithPath)) {
         echo "The file ". basename( $_FILES["fileToUpload"]["name"]). " has been uploaded.";
     } else {
         echo "Sorry, there was an error uploading your file.";
@@ -37,15 +45,12 @@ if ($uploadOk == 0) {
 }
 
 
+echo "<br><b>Graph data did something" . "</b><br>";
+
+echo $fileNameWithPath;
 
 
-echo "<b>Graph data did something.thing." . "</b><br>";
-$fileNameWithPath = ($target_dir . basename( $_FILES["fileToUpload"]["name"]));
-
-
-
-
-$command = escapeshellcmd("python -u /var/www/html/hearCharts/hearCharts/audio_test.py $fileNameWithPath");
-$output = shell_exec("python -u /var/www/html/hearCharts/hearCharts/audio_test.py $fileNameWithPath");
+$output = shell_exec("python -u /var/www/html/hearCharts/hearCharts/audio_test.py $fileNameWithPath $fileNameWithoutExtension");
+$testOut = shell_exec("python -u /var/www/html/hearCharts/hearCharts/combine.py $fileNameWithoutExtension");
 
 ?>
