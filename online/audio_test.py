@@ -15,13 +15,15 @@ import subprocess
 import re
 from collections import OrderedDict
 import sys
+import subprocess
+import re
 
 plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 plt.rcParams['animation.convert_path'] = '/usr/bin/convert'
 
 
 testFile = sys.argv[1];
-
+saveFileAs = sys.argv[2];
 
 def inputData():
 
@@ -70,7 +72,7 @@ def writeAudio(data, newFirstNote, testSamp, newSecondNote, trigger, indexOne, i
 		data[0][1] = newFirstNote + testSamp + newSecondNote;
 		del data[1];
 
-		p = wave.open('./TESTAUDIO.wav', 'wb');			#writing audio data
+		p = wave.open(saveFileAs + 'AUDIO.wav', 'wb');			#writing audio data
 		p.setparams(data[0][0]);
 
 		for i in range(0, len(data)):
@@ -223,7 +225,7 @@ def drawAndSave():
 	Y_MAX = max(d);
 	X_VALS = range(0,len(d));
 	print(X_VALS)
-	p = wave.open('./TESTAUDIO.wav', 'rb');			#reading audio data just for the params to calculate the length of the audio file
+	p = wave.open(saveFileAs + 'AUDIO.wav', 'rb');			#reading audio data just for the params to calculate the length of the audio file
 	frames = p.getnframes()
 	rate = p.getframerate()
 
@@ -251,8 +253,12 @@ def drawAndSave():
 	line_anim = animation.FuncAnimation(fig, update_line, range(0,len(d)), fargs=(l, ), interval=(interval), blit=False, repeat=False);
 
 	#plt.show();
-	line_anim.save('TESTVIDEO.mp4');
+	line_anim.save(str(saveFileAs) + 'VIDEO.mp4');
 
 
 
 averagize(inputData(), noteSet());
+
+#cmd = 'ffmpeg -i -y /var/www/html/TESTVIDEO.mp4 -i /var/www/html/TESTAUDIO.wav  -c:v copy -c:a aac -strict experimental graphOutputSKIDOODLE.mp4'
+#subprocess.call(cmd, shell=True)                                     # "Muxing Done
+#print('Muxing Done')
