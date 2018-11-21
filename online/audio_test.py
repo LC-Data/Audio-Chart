@@ -15,8 +15,6 @@ import subprocess
 import re
 from collections import OrderedDict
 import sys
-import subprocess
-import re
 
 plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
 plt.rcParams['animation.convert_path'] = '/usr/bin/convert'
