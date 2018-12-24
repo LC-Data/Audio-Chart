@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 # frequency is the number of times a wave repeats a second  --- Messing with the frequency gives us the different sound pitches(probably wrong terminology).
 frequency = 250 
 num_samples = 44100
- 
+
+#CERTAIN FREQUENCY OVERLAPS CAUSE NASTY NOISE -- SCIENCE THIS
+
 # The sampling rate of the analog to digital convert
 sampling_rate = 44100.0
 amplitude = 32000 # corresponds to volume?
